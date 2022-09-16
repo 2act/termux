@@ -70,8 +70,8 @@ alias ap="apachectl"
 alias aps="apachectl stop"
 
 	# 常用编程别名及编译处理
+mkdir -p ~/code
 for i in "" 1 2 3 4 5; do
-	mkdir -p ~/code
 	# c语言
 	alias c$i="vi ~/code/c$i.c"
 	alias g$i="gcc ~/code/c$i.c -o ~/code/c$i"
@@ -173,4 +173,5 @@ function getvim() {
 	cd vim/src
 	make && make install && echo ok
 }
+
 
