@@ -174,4 +174,50 @@ function getvim() {
 	make && make install && echo ok
 }
 
+function cfvim() {
+    # Install latest nodejs
+    if [ ! -x "$(command -v node)"  ]; then
+        curl -sL install-node.vercel.app/lts | bash
+        apt install -y npm
+    fi
+    #local url="https://file.sfnote.com/d/linux"
+    blue "下载.vimrc..."
+    curl https://raw.githubusercontent.com/hugo-on/termux/main/.vimrc > ~/.vimrc
+    blue "下载解压.vim.tgz..."
+    cd && curl https://github.com/hugo-on/termux/releases/download/vim/custom.vim.tgz | tar -zxvf-
+    blue "下载解压coc.tgz..."
+    mkdir -p .config
+    cd .config && curl https://github.com/hugo-on/termux/releases/download/vim/coc.tgz | tar -zxvf-
+    blue "vim配置成功"
+}
+
+function configureZsh() {
+    touch ~/.myrc
+    if [ ! -d ~/.oh-my-zsh ]; then
+        red "您还没有安装zsh, 请先安装zsh!"
+        return 1;
+    fi
+    cd # 工作目录为家目录
+    # 安装插件
+    [ ! -d ~/.oh-my-zsh/plugins/zsh-syntax-highlighting ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/plugins/zsh-syntax-highlighting/
+    [ ! -d ~/.oh-my-zsh/plugins/zsh-autosuggestions ] && git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/plugins/zsh-autosuggestions/
+    # 启用插件和自定义配置文件
+    [ -f /etc/zsh_command_not_found ] && ! grep zsh_command_not_found ~/.zshrc && echo "source /etc/zsh_command_not_found" >> ~/.zshrc
+    grep zsh-autosuggestions ~/.zshrc || echo "source ~/.oh-my-zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
+    grep zsh-syntax ~/.zshrc || echo "source ~/.oh-my-zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+    grep myrc ~/.zshrc || echo "source ~/.myrc" >> ~/.zshrc
+    # 主题修改配置
+    sed -i "s/robbyrussell/af-magic/g" ~/.zshrc
+    local themefile=".oh-my-zsh/themes/af-magic.zsh-theme"
+    if ! grep "themefile changed" $themefile; then
+        sed -i '/^function af/a return;' $themefile
+        sed -i '/^PS1/{N; d}' $themefile # 删除PS1，原文件为两行
+        sed -i '/^PS2/i PS1="${FG[237]}\${(l.\$(afmagic_dashes)..-.)}%{$reset_color%}"\nPS1+="%(?..%{$fg[red]%}%?%{$reset_color%})"\nPS1+="${FG[105]}[%m]%{$reset_color%}:${FG[032]}%~\$(git_prompt_info)\$(hg_prompt_info) ${FG[105]}%(!.#.»)%{$reset_color%} "' $themefile # 插入自定义的PS1
+        sed -i 's/^RPS1/#RPS1/g' $themefile # 注释RPS1
+        #sed -i '/^#RPS1+/a RPS1+=" ${FG[237]}\$(date +%H:%M:%S)%{$reset_color%}"' $themefile # 增加自定义的RPS1
+        echo "#themefile changed" >> $themefile # 设置主题文件已修改的标志
+    fi
+    blue "zsh配置成功!"
+    zsh
+}
 
