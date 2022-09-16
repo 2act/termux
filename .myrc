@@ -1,0 +1,176 @@
+#!/usr/bin/bash
+
+# PATH设置
+if [ -d /data/data/com.termux ]; then
+	export PATH=$PATH:$HOME:$HOME/bin:$usr/local/bin:/data/data/com.termux/files/usr/bin:/data/data/com.termux/files/usr/bin/applets:/system/bin:/system/xbin:/sbin:/sbin/bin:/data/data/com.termux/files/home:/data/data/com.termux/files/home/bin:/data/data/com.termux/files/usr/local/bin:$HOME/vendor/bin:
+else
+	export PATH=$PATH:$HOME:$HOME/bin:/usr/local/bin
+fi
+
+web="/var/www/html"
+
+# zsh命令历史配置
+export HISTSIZE=50000
+export SAVEHIST=50000
+
+if [ -x /usr/local/bin/vim ]; then
+	export VISUAL="/usr/local/bin/vim"
+elif [ -x $(which vim) ]; then
+	export EDITOR="vim"
+fi
+
+# 常用命令别名
+	# termux专用
+if [ -d "/data/data/com.termux" ];then
+	web="$usr/share/nginx/html"
+fi
+	# linux通用
+alias rsync="rsync -rhzuv --progress"
+alias dft="vi /etc/nginx/nginx.conf"
+alias cp="cp -r"
+alias scp="scp -r"
+alias passh="sed -i 's/^PermitRootLogin .*$/PermitRootLogin yes/g' /etc/ssh/sshd_config ; service sshd restart;";
+alias nossh="sed -i 's/^PermitRootLogin .*$/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config ; service sshd restart";
+alias vlog="cat /var/log/v2ray/access.log | cut -d' ' -f 3 | sort | uniq -c | sort -r | grep -v 127.0.0.1 | grep tcp | nl"
+alias nlog="cat /var/log/nginx/access.log | cut -d' ' -f1 | sort | uniq -c | sort -r | nl"
+alias p5="ping -c 5"
+alias web="cd $web"
+alias webd="cd $webd"
+alias ai="apt install -y"
+alias au="apt update -y && apt upgrade -y"
+alias sai="sudo apt install -y"
+alias sau="sudo apt update -y && sudo apt upgrade -y"
+alias asc="apt search"
+alias vi="vim"
+alias vr="vi ~/.vimrc"
+alias a="vi ~/.myrc"
+alias .a="source ~/.myrc"
+alias .z="source ~/.zshrc"
+alias ls="ls -thF --color=auto"
+alias ll="ls -l --color=auto"
+alias la="ls -A --color=auto"
+alias lt="ls -t --color=auto"
+alias lth="ls -t --color=auto | head"
+alias ltt="ls -t --color=auto | tail"
+alias q="exit"
+alias ng="netstat -an | grep"
+alias lg="la | grep"
+alias l.="la .*"
+alias curl="curl -L"
+alias ctl="systemctl"
+if command -v python3 > /dev/null; then
+	alias p="python3"
+else
+	alias p="python"
+fi
+alias pip="pip3"
+	# apache服务器
+alias apr="apachectl stop;apachectl"
+alias ap="apachectl"
+alias aps="apachectl stop"
+
+	# 常用编程别名及编译处理
+for i in "" 1 2 3 4 5; do
+	mkdir -p ~/code
+	# c语言
+	alias c$i="vi ~/code/c$i.c"
+	alias g$i="gcc ~/code/c$i.c -o ~/code/c$i"
+	alias x$i="time ~/code/c$i"
+	alias fx$i="while true; do time ~/code/c$i; done"
+	# C++
+	alias v$i="vi ~/code/C$i.cpp"
+	alias gc$i="g++ ~/code/C$i.cpp -o ~/code/C$i"
+	alias gx$i="time ~/code/C$i"
+	alias fgx$i="while true; do time ~/code/C$i; done"
+	# python
+	alias y$i="vi ~/code/y$i.py"
+	alias e$i="time p ~/code/y$i.py"
+	alias fe$i="while true; do time p ~/code/y$i.py; done"
+	# shell
+	alias s$i="vi ~/code/s$i.sh"
+	alias z$i="time bash ~/code/s$i.sh"
+	alias fs$i="while true; do time bash ~/code/s$i.sh; done"
+	# php
+	alias h$i="vi ~/code/h$i.php"
+	alias j$i="time php ~/code/h$i.php"
+	alias fj$i="while true; do time php ~/code/h$i.php; done"
+done
+
+# 设置一些颜色输出
+function red() {
+	[ "$1" = "-n" ] && local nl=$1 && shift
+	echo -e $nl "\033[31m\033[01m$1\033[0m$2"
+	return 1
+}
+
+function green() {
+	[ "$1" = "-n" ] && local nl=$1 && shift
+	echo -e $nl "\033[32m\033[01m$1\033[0m$2"
+}
+
+function yellow() {
+	[ "$1" = "-n" ] && local nl=$1 && shift
+	echo -e $nl "\033[33m\033[01m$1\033[0m$2"
+}
+
+function blue() {
+	[ "$1" = "-n" ] && local nl=$1 && shift
+	echo -e $nl "\033[34m\033[01m$1\033[0m$2"
+}
+
+# 设置终端代理
+if [ -d "/data/data/com.termux" ];then
+	alias fq="export http_proxy='http://127.0.0.1:10809' && export https_proxy='http://127.0.0.1:10809'"
+else
+	alias fq="export http_proxy='http://127.0.0.1:10809' && export https_proxy='http://127.0.0.1:10809'"
+fi
+alias hg="export http_proxy= && export https_proxy="
+alias fqs="echo http_proxy=\$http_proxy && echo https_proxy=\$https_proxy"
+
+# 服务器登录安全检查
+if [ -d /var/www/html/ -a ! -d /mnt/d ]; then
+	if grep -E "^PermitRootLogin .*prohibit-password" /etc/ssh/sshd_config &> /dev/null; then
+		green "已禁止root用户使用密码登录";
+	else
+		red "root用户可以使用密码登录，请注意服务器安全!"
+	fi
+fi
+
+# 常用函数
+function sk() {
+	[[ "$1" == "" ]] && echo "usage: sk username@host" && return 1
+	[[ ! "$1" =~ "@" ]] && echo "usage: sk username@host" && return 1
+	if [ ! -f ~/.ssh/id_rsa ]; then ssh-keygen; fi; ssh-copy-id -i ~/.ssh/id_rsa.pub $1
+}
+
+	# web服务
+function fw() {
+	if [ -n "$1" ]; then
+		exec 3>&1
+		exec 4>&2
+		exec &> /dev/null
+		sudo pkill nginx;
+		pkill php-fpm;
+		pkill mysqld;
+		exec 1>&3
+		exec 2>&4
+		return 0;
+	fi
+	if [ "`sudo pgrep nginx`" = "" ];then
+		sudo nginx;
+	fi
+	if [ "`pgrep php`" = "" ];then
+		php-fpm > /dev/null 2>&1
+	fi
+	if [ "`pgrep mysqld`" = "" ]; then
+		nohup mysqld > /dev/null 2>&1 &
+	fi
+}
+
+function getvim() {
+	cd $HOME
+	git clone https://github.com/vim/vim.git
+	cd vim/src
+	make && make install && echo ok
+}
+
