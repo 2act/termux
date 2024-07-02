@@ -12,8 +12,8 @@ pkg upgrade -y
 pkg install -y wget vim curl git tar tree zsh clang python nodejs git
 
 # 设置下载连接
-# url="https://file.sfnote.com/d/linux"
-url="https://raw.githubusercontent.com/hugo-on/termux/main"
+url="https://file.techxf.com/d/linux"
+# url="https://raw.githubusercontent.com/hugo-on/termux/main"
 
 # 定制常用按键
 mkdir -p ~/.termux
