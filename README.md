@@ -3,7 +3,7 @@
 # Usage
 运行以下命令
 ```bash
-curl https://raw.githubusercontent.com/techxf/termux/main/termux.sh | bash
+curl https://raw.githubusercontent.com/sfnotes/termux/main/termux.sh | bash
 ```
 成功后重启termux，运行如下命令
 ```bash
